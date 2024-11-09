@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple 2D Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            border: 2px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Player settings
+        const playerWidth = 30;
+        const playerHeight = 30;
+        let playerX = canvas.width / 2 - playerWidth / 2;
+        let playerY = canvas.height - playerHeight - 10;
+        let playerSpeed = 5;
+
+        // Obstacle settings
+        const obstacleWidth = 30;
+        const obstacleHeight = 30;
+        let obstacles = [];
+        let obstacleSpeed = 2;
+
+        // Game loop
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+            drawPlayer();
+            movePlayer();
+            generateObstacles();
+            moveObstacles();
+            detectCollisions();
+            requestAnimationFrame(gameLoop); // Repeat the loop
+        }
+
+        // Draw the player
+        function drawPlayer() {
+            ctx.fillStyle = "blue";
+            ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
+        }
+
+        // Move the player based on keyboard input
+        let keys = {};
+        window.addEventListener("keydown", (e) => {
+            keys[e.key] = true;
+        });
+        window.addEventListener("keyup", (e) => {
+            keys[e.key] = false;
+        });
+
+        function movePlayer() {
+            if (keys["ArrowLeft"] && playerX > 0) {
+                playerX -= playerSpeed;
+            }
+            if (keys["ArrowRight"] && playerX + playerWidth < canvas.width) {
+                playerX += playerSpeed;
+            }
+        }
+
+        // Generate obstacles
+        function generateObstacles() {
+            if (Math.random() < 0.02) {
+                let x = Math.random() * (canvas.width - obstacleWidth);
+                obstacles.push({ x: x, y: 0 });
+            }
+        }
+
+        // Move obstacles down
+        function moveObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].y += obstacleSpeed;
+                ctx.fillStyle = "red";
+                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacleWidth, obstacleHeight);
+            }
+        }
+
+        // Detect collisions with obstacles
+        function detectCollisions() {
+            for (let i = 0; i < obstacles.length; i++) {
+                if (
+                    playerX < obstacles[i].x + obstacleWidth &&
+                    playerX + playerWidth > obstacles[i].x &&
+                    playerY < obstacles[i].y + obstacleHeight &&
+                    playerY + playerHeight > obstacles[i].y
+                ) {
+                    alert("Game Over!");
+                    resetGame();
+                }
+            }
+        }
+
+        // Reset the game
+        function resetGame() {
+            playerX = canvas.width / 2 - playerWidth / 2;
+            playerY = canvas.height - playerHeight - 10;
+            obstacles = [];
+        }
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+</html>
